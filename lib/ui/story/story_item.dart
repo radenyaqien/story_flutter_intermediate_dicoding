@@ -25,9 +25,7 @@ class StoryItem extends StatelessWidget {
                       height: 100,
                       width: 100,
                       clipBehavior: Clip.antiAlias,
-                      decoration: const BoxDecoration(
-                          shape: BoxShape.rectangle,
-                          borderRadius: BorderRadius.all(Radius.circular(4))),
+                      decoration: const BoxDecoration(shape: BoxShape.circle),
                       child: Image.network(
                         story.photoUrl,
                         fit: BoxFit.cover,
@@ -37,11 +35,12 @@ class StoryItem extends StatelessWidget {
               Expanded(
                   flex: 2,
                   child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Text(
-                        story.name,
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      )))
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Text(
+                      story.name,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                  ))
             ]));
   }
 }

@@ -10,13 +10,12 @@ class PreferenceHelper {
 
   Future<bool> isLoggedIn() async {
     final preferences = await SharedPreferences.getInstance();
-    await Future.delayed(const Duration(seconds: 2));
+
     return preferences.getBool(stateKey) ?? false;
   }
 
   Future<bool> login() async {
     final preferences = await SharedPreferences.getInstance();
-    await Future.delayed(const Duration(seconds: 2));
     return preferences.setBool(stateKey, true);
   }
 
@@ -28,7 +27,6 @@ class PreferenceHelper {
 
   Future<bool> saveUser(User user) async {
     final preferences = await SharedPreferences.getInstance();
-    await Future.delayed(const Duration(seconds: 2));
     return preferences.setString(userKey, user.toJson());
   }
 
@@ -40,7 +38,7 @@ class PreferenceHelper {
 
   Future<User?> getUser() async {
     final preferences = await SharedPreferences.getInstance();
-    await Future.delayed(const Duration(seconds: 2));
+
     final json = preferences.getString(userKey) ?? "";
     User? user;
     try {

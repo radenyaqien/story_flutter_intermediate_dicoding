@@ -5,9 +5,8 @@ import 'package:storyflutter/data/remote/auth_service.dart';
 import 'package:storyflutter/routes/router_delegate.dart';
 import 'package:storyflutter/ui/addstory/provider/add_story_provider.dart';
 import 'package:storyflutter/ui/auth/provider/auth_provider.dart';
-import 'package:storyflutter/ui/detail/detail_story_provider.dart';
+import 'package:storyflutter/ui/story/provider/page_manager.dart';
 import 'package:storyflutter/ui/story/provider/story_list_provider.dart';
-import 'package:storyflutter/ui/story/story_screen.dart';
 
 import 'data/auth_repository.dart';
 import 'data/remote/api_service.dart';
@@ -32,9 +31,9 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
-    myRouterDelegate = AppRouterDelegate();
     authRepository = AuthRepository(
         preferenceHelper: preferenceHelper, authService: authService);
+    myRouterDelegate = AppRouterDelegate(authRepository);
     super.initState();
   }
 
@@ -46,9 +45,7 @@ class _MyAppState extends State<MyApp> {
           ChangeNotifierProvider<AuthProvider>(
             create: (_) => AuthProvider(authRepository: authRepository),
           ),
-          ChangeNotifierProvider<DetailStoryProvider>(
-              create: (_) => DetailStoryProvider(
-                  apiService: apiService, preferenceHelper: preferenceHelper)),
+          ChangeNotifierProvider(create: (context) => PageManager()),
           ChangeNotifierProvider<StoryListProvider>(
               create: (_) => StoryListProvider(
                   service: apiService, preferenceHelper: preferenceHelper)),
@@ -63,7 +60,10 @@ class _MyAppState extends State<MyApp> {
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
           ),
-          home: const StoryScreen(),
+          home: Router(
+            routerDelegate: myRouterDelegate,
+            backButtonDispatcher: RootBackButtonDispatcher(),
+          ),
         ));
   }
 }

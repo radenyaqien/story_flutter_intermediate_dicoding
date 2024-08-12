@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:storyflutter/data/preference/preference_helper.dart';
 import 'package:storyflutter/data/preference/user.dart';
 import 'package:storyflutter/data/remote/auth_service.dart';
@@ -9,25 +10,32 @@ class AuthRepository {
   AuthRepository({required this.preferenceHelper, required this.authService});
 
   Future<bool> isLoggedIn() async {
-    return preferenceHelper.isLoggedIn();
+    return await preferenceHelper.isLoggedIn();
   }
 
   Future<bool> login(String emaill, String passsword) async {
     try {
-      var response = await authService.login(emaill, passsword);
-      return preferenceHelper.saveUser(response.user);
+      final response = await authService.login(emaill, passsword);
+
+      User user = User(
+          userId: response.loginResult.userId,
+          name: response.loginResult.name,
+          token: response.loginResult.token);
+      await preferenceHelper.saveUser(user);
+     final loginsuccess = await preferenceHelper.login();
+     if (kDebugMode) {
+       print("isLogin : $loginsuccess");
+     }
+      return loginsuccess;
     } catch (e) {
       return false;
     }
   }
 
   Future<bool> register(String name, String emaill, String passsword) async {
-    try {
-      await authService.register(name, emaill, passsword);
-      return true;
-    } catch (e) {
-      return false;
-    }
+    final response = await authService.register(name, emaill, passsword);
+
+    return !response.error;
   }
 
   Future<bool> deleteUser() async {
@@ -41,6 +49,4 @@ class AuthRepository {
   Future<User?> getUser() async {
     return preferenceHelper.getUser();
   }
-
-
 }

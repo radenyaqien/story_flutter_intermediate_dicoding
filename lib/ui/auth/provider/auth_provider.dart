@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:storyflutter/data/auth_repository.dart';
 
@@ -8,6 +9,7 @@ class AuthProvider extends ChangeNotifier {
   bool isLoadingLogout = false;
   bool isLoadingRegister = false;
   bool isLoggedIn = false;
+  String message = "";
 
   AuthProvider({required this.authRepository});
 
@@ -41,6 +43,7 @@ class AuthProvider extends ChangeNotifier {
     isLoadingRegister = true;
     notifyListeners();
     final userState = await authRepository.register(name, email, password);
+
     isLoadingRegister = false;
     notifyListeners();
     return userState;

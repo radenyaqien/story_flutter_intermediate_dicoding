@@ -4,34 +4,54 @@
 
 import 'dart:convert';
 
-import '../preference/user.dart';
-
-LoginResponse loginResponseFromJson(String str) =>
-    LoginResponse.fromJson(json.decode(str));
+LoginResponse loginResponseFromJson(String str) => LoginResponse.fromJson(json.decode(str));
 
 String loginResponseToJson(LoginResponse data) => json.encode(data.toJson());
 
 class LoginResponse {
   bool error;
   String message;
-  User user;
+  LoginResult loginResult;
 
   LoginResponse({
     required this.error,
     required this.message,
-    required this.user,
+    required this.loginResult,
   });
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) => LoginResponse(
-        error: json["error"],
-        message: json["message"],
-        user: User.fromJson(json["loginResult"]),
-      );
+    error: json["error"],
+    message: json["message"],
+    loginResult: LoginResult.fromJson(json["loginResult"]),
+  );
 
   Map<String, dynamic> toJson() => {
-        "error": error,
-        "message": message,
-        "loginResult": user.toJson(),
-      };
+    "error": error,
+    "message": message,
+    "loginResult": loginResult.toJson(),
+  };
 }
 
+class LoginResult {
+  String userId;
+  String name;
+  String token;
+
+  LoginResult({
+    required this.userId,
+    required this.name,
+    required this.token,
+  });
+
+  factory LoginResult.fromJson(Map<String, dynamic> json) => LoginResult(
+    userId: json["userId"],
+    name: json["name"],
+    token: json["token"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "userId": userId,
+    "name": name,
+    "token": token,
+  };
+}

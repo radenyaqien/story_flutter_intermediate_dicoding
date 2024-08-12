@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:storyflutter/data/model/detail_story_response.dart';
 import 'package:storyflutter/data/model/story_response.dart';
@@ -31,6 +32,7 @@ class ApiService {
   Future<DetailStoryResponse> fetchStory(String token, String id) async {
     final response = await http.get(Uri.parse("${baseUrl}stories/$id"),
         headers: {"Authorization": "Bearer $token"});
+
     if (response.statusCode == 200) {
       return DetailStoryResponse.fromJson(json.decode(response.body));
     } else {

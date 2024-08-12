@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:storyflutter/ui/addstory/form_add_story.dart';
 
-class AddStoryScreen extends StatelessWidget {
-  const AddStoryScreen({super.key});
 
+class AddStoryScreen extends StatelessWidget {
+  const AddStoryScreen({super.key, required this.navigateBack});
+  final Function() navigateBack;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
             onPressed: () {
-              //TODO navigate back
+              navigateBack();
             },
             icon: const Icon(Icons.arrow_back)),
         title: Text(
@@ -18,7 +19,7 @@ class AddStoryScreen extends StatelessWidget {
           style: Theme.of(context).textTheme.headlineMedium,
         ),
       ),
-      body: const SingleChildScrollView(
+      body:  const SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(16.0),
           child: FormAddStory(),

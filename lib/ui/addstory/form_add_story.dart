@@ -6,6 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:storyflutter/ui/addstory/provider/add_story_provider.dart';
 
+import '../story/provider/page_manager.dart';
+
 class FormAddStory extends StatefulWidget {
   const FormAddStory({super.key});
 
@@ -72,18 +74,18 @@ class _FormAddStoryState extends State<FormAddStory> {
             ),
           ),
           const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                _onUpload();
-              }
-            },
-            child: context.watch<AddStoryProvider>().isUploading
-                ? const CircularProgressIndicator(
-                    color: Colors.white,
-                  )
-                : const Text('Upload'),
-          ),
+          context.watch<AddStoryProvider>().isUploading
+              ? const CircularProgressIndicator(
+                  color: Colors.white,
+                )
+              : ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      _onUpload();
+                    }
+                  },
+                  child: const Text('Upload'),
+                ),
         ],
       ),
     );
@@ -116,6 +118,9 @@ class _FormAddStoryState extends State<FormAddStory> {
     scaffoldMessengerState.showSnackBar(
       SnackBar(content: Text(uploadProvider.message)),
     );
+    if (context.mounted) {
+      context.read<PageManager>() .returnData(true);
+    }
   }
 
   _onGalleryView() async {
