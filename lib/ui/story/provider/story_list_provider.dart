@@ -21,19 +21,29 @@ class StoryListProvider extends ChangeNotifier {
 
   String get message => _message;
 
-  late List<Story> _result;
+  List<Story> result = [];
 
-  List<Story> get result => _result;
+  int? pageItems = 1;
+  int sizeItems = 10;
 
   Future<void> fetchAllStory() async {
-    _state = DataState.loading;
-    notifyListeners();
+    if (pageItems == 1) {
+      _state = DataState.loading;
+      notifyListeners();
+    }
     try {
       final user = await preferenceHelper.getUser();
-      var response = await service.fetchAllStories(user?.token ?? "");
+      var response = await service.fetchAllStories(
+          user?.token ?? "", pageItems!, sizeItems,1);
       if (!response.error) {
+        pageItems = pageItems! + 1;
         _state = DataState.hasData;
-        _result = response.listStory;
+        result.addAll(response.listStory);
+        if (response.listStory.length < sizeItems) {
+          pageItems = null;
+        } else {
+          pageItems = pageItems! + 1;
+        }
         notifyListeners();
       } else {
         _state = DataState.noData;
@@ -46,4 +56,6 @@ class StoryListProvider extends ChangeNotifier {
       _message = "No Internet Connection";
     }
   }
+
+
 }

@@ -14,8 +14,10 @@ class ApiService {
 
   ApiService();
 
-  Future<StoryResponse> fetchAllStories(String token) async {
-    final response = await http.get(Uri.parse("${baseUrl}stories"),
+  Future<StoryResponse> fetchAllStories(
+      String token, int page, int size,loc) async {
+    final response = await http.get(
+        Uri.parse("${baseUrl}stories?page=$page&size=$size&location=$loc"),
         headers: {"Authorization": "Bearer $token"});
     if (response.statusCode == 200) {
       return StoryResponse.fromJson(json.decode(response.body));

@@ -24,6 +24,29 @@ class StoryScreen extends StatefulWidget {
 }
 
 class _StoryScreenState extends State<StoryScreen> {
+
+  final scrollController = ScrollController();
+
+  @override
+  void initState() {
+    final apiProvider = context.read<StoryListProvider>();
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >= scrollController.position.maxScrollExtent) {
+        if (apiProvider.pageItems != null) {
+          apiProvider.fetchAllStory();
+        }
+
+      }
+    });
+
+    super.initState();
+  }
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,12 +79,21 @@ class _StoryScreenState extends State<StoryScreen> {
             });
       }),
       body: Consumer<StoryListProvider>(builder: (build, provider, _) {
-        if (provider.state == DataState.loading) {
+        if (provider.state == DataState.loading && provider.pageItems==1) {
           return const Center(child: CircularProgressIndicator());
         } else if (provider.state == DataState.hasData) {
           return ListView.builder(
-              itemCount: provider.result.length,
+            controller: scrollController,
+              itemCount: provider.result.length + (provider.pageItems != null ? 1 : 0),
               itemBuilder: (context, index) {
+                if (index == provider.result.length && provider.pageItems != null) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(8),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
                 final storyItem = provider.result[index];
                 return StoryItem(
                     story: storyItem,
