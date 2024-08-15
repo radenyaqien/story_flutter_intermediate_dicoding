@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:storyflutter/data/remote/api_service.dart';
-
+import 'package:geocoding/geocoding.dart' as geo;
 import '../../data/model/story.dart';
 import '../../data/preference/preference_helper.dart';
 import '../../utils/data_state.dart';
@@ -30,9 +31,7 @@ class DetailStoryProvider extends ChangeNotifier {
   Story get story => _story;
 
   Future<void> _fetchDetailStory(String id) async {
-    if (kDebugMode) {
-      print("idku $id");
-    }
+
     _state = DataState.loading;
     notifyListeners();
     try {
@@ -54,7 +53,39 @@ class DetailStoryProvider extends ChangeNotifier {
       _message = "Terjadi kesalahan, Periksa koneksi anda";
       _state = DataState.error;
     }
-
+    _getCurrAddress();
     notifyListeners();
+  }
+
+  final Set<Marker> markers = {};
+  String _currAddress = "Location Unknown";
+  void _createMarker() {
+    if (story.lat != null && story.lon != null) {
+      final marker = Marker(
+        markerId: const MarkerId("curr_position"),
+        infoWindow: InfoWindow(title: _currAddress),
+        position: LatLng(story.lat!, story.lon!),
+      );
+
+      markers.add(marker);
+      notifyListeners();
+    }
+  }
+
+  Future<void> _getCurrAddress() async {
+    if (story.lat != null && story.lon != null) {
+      final info = await geo.placemarkFromCoordinates(
+        story.lat!,
+        story.lon!,
+      );
+
+      if (info.isNotEmpty) {
+        final place = info[0];
+        _currAddress =
+        '${place.street}, ${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
+      }
+
+      _createMarker();
+    }
   }
 }

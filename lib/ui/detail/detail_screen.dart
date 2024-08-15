@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:storyflutter/data/model/story.dart';
 import 'package:storyflutter/data/preference/preference_helper.dart';
@@ -11,7 +12,11 @@ class DetailScreen extends StatefulWidget {
   final String id;
   final Function() navigateBack;
 
-  const DetailScreen({super.key, required this.id, required this.navigateBack});
+  const DetailScreen({
+    super.key,
+    required this.id,
+    required this.navigateBack,
+  });
 
   @override
   State<DetailScreen> createState() => _DetailScreenState();
@@ -39,7 +44,8 @@ class _DetailScreenState extends State<DetailScreen> {
           if (provider.state == DataState.loading) {
             return const Center(child: CircularProgressIndicator());
           } else if (provider.state == DataState.hasData) {
-            return DetailContent(story: provider.story);
+            return DetailContent(
+                story: provider.story, markers: provider.markers);
           } else {
             return Center(
               child: Material(
@@ -54,9 +60,10 @@ class _DetailScreenState extends State<DetailScreen> {
 }
 
 class DetailContent extends StatelessWidget {
-  const DetailContent({super.key, required this.story});
+  const DetailContent({super.key, required this.story, required this.markers});
 
   final Story story;
+  final Set<Marker> markers;
 
   @override
   Widget build(BuildContext context) {
@@ -66,33 +73,84 @@ class DetailContent extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
+            AspectRatio(
+              aspectRatio: 4 / 3,
+              child: Container(
                 clipBehavior: Clip.antiAlias,
                 decoration: const BoxDecoration(
                     shape: BoxShape.rectangle,
                     borderRadius: BorderRadius.all(Radius.circular(4))),
-                child: Image.network(story.photoUrl)),
+                child: Image.network(
+                  story.photoUrl,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
             Padding(
-              padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                "Name",
+                textAlign: TextAlign.justify,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(story.name,
                   style: Theme.of(context).textTheme.titleMedium),
             ),
+            const SizedBox(height: 8),
             Padding(
-              padding: const EdgeInsets.only(left: 16, top: 20, right: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                "Description",
+                "Description :",
                 textAlign: TextAlign.justify,
-                style: Theme.of(context).textTheme.displayMedium,
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
                 story.description,
                 textAlign: TextAlign.justify,
-                style: Theme.of(context).textTheme.displayMedium,
+                style: Theme.of(context).textTheme.bodyLarge,
               ),
             ),
+            story.lat != null && story.lon != null
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 8),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          "Location :",
+                          textAlign: TextAlign.start,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        height: 200,
+                        child: GoogleMap(
+                          mapType: MapType.normal,
+                          markers: markers,
+                          initialCameraPosition: CameraPosition(
+                            target: LatLng(
+                              story.lat!,
+                              story.lon!,
+                            ),
+                            zoom: 15,
+                          ),
+                        ),
+                      )
+                    ],
+                  )
+                : Text(
+                    "Location Not Found",
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
           ],
         ),
       ),

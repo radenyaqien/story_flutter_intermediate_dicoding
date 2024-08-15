@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:storyflutter/ui/story/provider/page_manager.dart';
@@ -24,23 +25,23 @@ class StoryScreen extends StatefulWidget {
 }
 
 class _StoryScreenState extends State<StoryScreen> {
-
   final scrollController = ScrollController();
 
   @override
   void initState() {
     final apiProvider = context.read<StoryListProvider>();
     scrollController.addListener(() {
-      if (scrollController.position.pixels >= scrollController.position.maxScrollExtent) {
+      if (scrollController.position.pixels >=
+          scrollController.position.maxScrollExtent) {
         if (apiProvider.pageItems != null) {
           apiProvider.fetchAllStory();
         }
-
       }
     });
 
     super.initState();
   }
+
   @override
   void dispose() {
     scrollController.dispose();
@@ -75,18 +76,27 @@ class _StoryScreenState extends State<StoryScreen> {
               widget.toFormScreen();
               final dataString =
                   await context.read<PageManager>().waitForResult();
-              if (dataString) provider.fetchAllStory();
+              if (kDebugMode) {
+                print('addstory $dataString');
+              }
+
+              if (dataString) provider.resetState();
+
+
+
             });
       }),
       body: Consumer<StoryListProvider>(builder: (build, provider, _) {
-        if (provider.state == DataState.loading && provider.pageItems==1) {
+        if (provider.state == DataState.loading && provider.pageItems == 1) {
           return const Center(child: CircularProgressIndicator());
         } else if (provider.state == DataState.hasData) {
           return ListView.builder(
-            controller: scrollController,
-              itemCount: provider.result.length + (provider.pageItems != null ? 1 : 0),
+              controller: scrollController,
+              itemCount:
+                  provider.result.length + (provider.pageItems != null ? 1 : 0),
               itemBuilder: (context, index) {
-                if (index == provider.result.length && provider.pageItems != null) {
+                if (index == provider.result.length &&
+                    provider.pageItems != null) {
                   return const Center(
                     child: Padding(
                       padding: EdgeInsets.all(8),

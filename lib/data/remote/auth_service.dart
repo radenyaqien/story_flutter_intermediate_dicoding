@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:storyflutter/data/model/default_response.dart';
+import 'package:storyflutter/data/model/register_response.dart';
 import 'package:storyflutter/data/remote/api_service.dart';
 
 import '../model/login_response.dart';
@@ -27,9 +27,9 @@ class AuthService {
         body: {"name": name, "email": email, "password": passsword});
 
     if (response.statusCode == 201) {
-      return RegisterResponse.fromJson(json.decode(response.body));
+      return registerResponseFromJson(response.body);
     } else {
-      return RegisterResponse(error : true,message: "password or email is invalid");
+      return const RegisterResponse(error : true,message: "password or email is invalid");
     }
   }
 }

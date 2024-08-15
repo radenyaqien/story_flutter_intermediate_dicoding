@@ -9,7 +9,9 @@ import 'package:storyflutter/ui/addstory/provider/add_story_provider.dart';
 import '../story/provider/page_manager.dart';
 
 class FormAddStory extends StatefulWidget {
-  const FormAddStory({super.key});
+  const FormAddStory({super.key, required this.changeAddress});
+
+  final Function(double lat, double lon) changeAddress;
 
   @override
   State<FormAddStory> createState() => _FormAddStoryState();
@@ -73,6 +75,68 @@ class _FormAddStoryState extends State<FormAddStory> {
               labelText: 'Description',
             ),
           ),
+          // ---- Location Field ----
+
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              "Address",
+              style: Theme.of(context)
+                  .textTheme
+                  .labelLarge!
+                  .copyWith(fontWeight: FontWeight.bold),
+            ),
+          ),
+
+          Consumer<AddStoryProvider>(
+            builder: (context, value, child) {
+              return TextField(
+                controller: value.addressController,
+                enabled: false,
+                maxLines: null,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                ),
+              );
+            },
+          ),
+
+          Consumer<AddStoryProvider>(
+            builder: (context, provider, child) {
+              return Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  onPressed: provider.currLatLon != null
+                      ? () async {
+
+                          widget.changeAddress(provider.currLatLon!.latitude,
+                              provider.currLatLon!.longitude);
+                          final data = await context
+                              .read<PageManager>()
+                              .waitForLocationResult();
+
+                          if (data != null) {
+
+                            provider.getPosition(
+                              lat: data.latitude,
+                              lon: data.longitude,
+                            );
+                          }
+                        }
+                      : null,
+                  child: Text(
+                    "Ubah Lokasi",
+                    style: TextStyle(
+                      color: provider.currLatLon != null
+                          ? Colors.blue
+                          : Colors.grey,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+
           const SizedBox(height: 16),
           context.watch<AddStoryProvider>().isUploading
               ? const CircularProgressIndicator(
@@ -90,6 +154,7 @@ class _FormAddStoryState extends State<FormAddStory> {
       ),
     );
   }
+
 
   _onUpload() async {
     final ScaffoldMessengerState scaffoldMessengerState =
@@ -119,7 +184,7 @@ class _FormAddStoryState extends State<FormAddStory> {
       SnackBar(content: Text(uploadProvider.message)),
     );
     if (context.mounted) {
-      context.read<PageManager>() .returnData(true);
+      context.read<PageManager>().returnData(true);
     }
   }
 

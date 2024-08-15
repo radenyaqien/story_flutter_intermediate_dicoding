@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:storyflutter/ui/addstory/add_story_screen.dart';
+import 'package:storyflutter/ui/addstory/maps_screen.dart';
 import 'package:storyflutter/ui/auth/login/login_screen.dart';
 import 'package:storyflutter/ui/detail/detail_screen.dart';
 import 'package:storyflutter/ui/story/story_screen.dart';
@@ -24,20 +26,24 @@ class AppRouterDelegate extends RouterDelegate
   bool isRegister = false;
   String? selectedStory;
   bool isAddStory = false;
+  bool isUpdateLocation = false;
+  LatLng? _latLng;
 
   _init() async {
     isLoggedIn = await authRepository.isLoggedIn();
     notifyListeners();
   }
 
-  List<Page> get _splashStack => [
+  List<Page> get _splashStack =>
+      [
         const MaterialPage(
           key: ValueKey("SplashScreen"),
           child: SplashScreen(),
         ),
       ];
 
-  List<Page> get _loggedOutStack => [
+  List<Page> get _loggedOutStack =>
+      [
         MaterialPage(
           key: const ValueKey("LoginScreen"),
           child: LoginScreen(
@@ -67,7 +73,8 @@ class AppRouterDelegate extends RouterDelegate
           ),
       ];
 
-  List<Page> get _loggedInStack => [
+  List<Page> get _loggedInStack =>
+      [
         MaterialPage(
           key: const ValueKey("StoriesListPage"),
           child: StoryScreen(
@@ -93,6 +100,11 @@ class AppRouterDelegate extends RouterDelegate
                   isAddStory = false;
                   notifyListeners();
                 },
+                changeAddress: (double lat, double lon) {
+                  _latLng = LatLng(lat, lon);
+                  isUpdateLocation = true;
+                  notifyListeners();
+                },
               )),
         if (selectedStory != null)
           MaterialPage(
@@ -104,6 +116,16 @@ class AppRouterDelegate extends RouterDelegate
                 notifyListeners();
               },
             ),
+          ),
+        if (isUpdateLocation && _latLng != null)
+          MaterialPage(
+            key: ValueKey(_latLng),
+            child: MapsScreen(
+              lat: _latLng!.latitude, lon: _latLng!.longitude, onSave: () {
+              _latLng = null;
+              isUpdateLocation = false;
+              notifyListeners();
+            },),
           ),
       ];
 
@@ -129,6 +151,8 @@ class AppRouterDelegate extends RouterDelegate
         selectedStory = null;
         notifyListeners();
         isAddStory = false;
+        isUpdateLocation = false;
+        _latLng = null;
         return true;
       },
     );

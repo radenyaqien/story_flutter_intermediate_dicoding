@@ -22,8 +22,8 @@ class StoryItem extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Container(
-                      height: 100,
-                      width: 100,
+                      height: 80,
+                      width: 80,
                       clipBehavior: Clip.antiAlias,
                       decoration: const BoxDecoration(shape: BoxShape.circle),
                       child: Image.network(
@@ -37,6 +37,7 @@ class StoryItem extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: Text(
+                      textAlign: TextAlign.justify,
                       story.name,
                       style: Theme.of(context).textTheme.titleSmall,
                     ),

@@ -1,48 +1,15 @@
-import 'dart:convert';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class DefaultResponse {
-  final bool error;
-  final String message;
+part 'default_response.freezed.dart';
+part 'default_response.g.dart';
 
-  DefaultResponse({
-    required this.error,
-    required this.message,
-  });
+@freezed
+class DefaultResponse with _$DefaultResponse {
+  const factory DefaultResponse({
+    required bool error,
+    required String message,
+  }) = _DefaultResponse;
 
-  factory DefaultResponse.fromMap(Map<String, dynamic> map) {
-    return DefaultResponse(
-      error: map['error'] ?? false,
-      message: map['message'] ?? '',
-    );
-  }
-
-  factory DefaultResponse.fromJson(String source) =>
-      DefaultResponse.fromMap(json.decode(source));
+  factory DefaultResponse.fromJson(Map<String, dynamic> source) =>
+      _$DefaultResponseFromJson(source);
 }
-
-
-
-RegisterResponse registerResponseFromJson(String str) => RegisterResponse.fromJson(json.decode(str));
-
-String registerResponseToJson(RegisterResponse data) => json.encode(data.toJson());
-
-class RegisterResponse {
-  bool error;
-  String message;
-
-  RegisterResponse({
-    required this.error,
-    required this.message,
-  });
-
-  factory RegisterResponse.fromJson(Map<String, dynamic> json) => RegisterResponse(
-    error: json["error"],
-    message: json["message"],
-  );
-
-  Map<String, dynamic> toJson() => {
-    "error": error,
-    "message": message,
-  };
-}
-

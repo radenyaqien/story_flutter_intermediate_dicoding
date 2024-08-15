@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -15,16 +14,17 @@ class ApiService {
   ApiService();
 
   Future<StoryResponse> fetchAllStories(
-      String token, int page, int size,loc) async {
+      String token, int page, int size, loc) async {
     final response = await http.get(
         Uri.parse("${baseUrl}stories?page=$page&size=$size&location=$loc"),
         headers: {"Authorization": "Bearer $token"});
     if (response.statusCode == 200) {
       return StoryResponse.fromJson(json.decode(response.body));
     } else if (response.statusCode == HttpStatus.notFound) {
-      return StoryResponse(error: true, message: "data kosong", listStory: []);
+      return const StoryResponse(
+          error: true, message: "data kosong", listStory: []);
     } else if (response.statusCode == HttpStatus.unauthorized) {
-      return StoryResponse(
+      return const StoryResponse(
           error: true, message: "tidak memiliki akses", listStory: []);
     } else {
       throw Exception('periksa koneksi anda');
@@ -42,8 +42,14 @@ class ApiService {
     }
   }
 
-  Future<DefaultResponse> addStory(String description, List<int> bytes,
-      String fileName, String token) async {
+  Future<DefaultResponse> addStory(
+    String? token,
+    String desc,
+    String fileName,
+    List<int> bytes,
+    double? lat,
+    double? lon,
+  ) async {
     final uri = Uri.parse("${baseUrl}stories");
     var request = http.MultipartRequest('POST', uri);
 
@@ -53,7 +59,9 @@ class ApiService {
       filename: fileName,
     );
     final Map<String, String> fields = {
-      "description": description,
+      "description": desc,
+      "lat": lat?.toString() ?? "",
+      "lon": lon?.toString() ?? ""
     };
     final Map<String, String> headers = {
       "Content-type": "multipart/form-data",
@@ -70,9 +78,12 @@ class ApiService {
     final Uint8List responseList = await streamedResponse.stream.toBytes();
     final String responseData = String.fromCharCodes(responseList);
 
+    if (kDebugMode) {
+      print({"addstory": statusCode, "res": responseData});
+    }
     if (statusCode == 201) {
       final DefaultResponse uploadResponse = DefaultResponse.fromJson(
-        responseData,
+        json.decode(responseData),
       );
       return uploadResponse;
     } else {
